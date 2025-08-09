@@ -10,7 +10,7 @@ If you find this project useful or interesting, please consider giving it a ⭐ 
 ## 🚀 Live Demo  
 🔗 **[Try the Application](https://safeguard-chat-app.vercel.app/)**  
 
-> **Note:** Add a screenshot named `screenshot.png` to the repository for the preview image to display here.
+> **Note:** Add a screenshot named `Screenshot.png` to the repository for the preview image to display here.
 
 ---
 
