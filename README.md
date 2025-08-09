@@ -1,93 +1,74 @@
-🛡️ SafeGuard AI - Real-Time Moderated Chat
-SafeGuard AI is a full-stack, real-time, peer-to-peer chat application with an integrated AI moderator that detects and flags toxic messages instantly. This project was built from the ground up to demonstrate a modern, serverless architecture for creating safer online communication tools.
+# 🛡️ SafeGuard AI — Real-Time Moderated Chat
 
-If you find this project useful or interesting, please consider giving it a ⭐ star!
+**SafeGuard AI** is a **full-stack, real-time, peer-to-peer chat application** with an **integrated AI moderator** that detects and flags toxic messages instantly.  
+Built from the ground up, this project demonstrates a **modern, serverless architecture** for creating **safer online communication tools**.
 
-🚀 Live Demo
-You can try the live application here:
+If you find this project useful or interesting, please consider giving it a ⭐ **star**!
 
-https://safeguard-chat-app.vercel.app/
+---
 
-Note: You will need to add a screenshot of the app named screenshot.png to the repository for this image to display.
+## 🚀 Live Demo  
+🔗 **[Try the Application](https://safeguard-chat-app.vercel.app/)**  
 
-✨ Key Features
-Real-Time P2P Chat: Instant messaging between users built on Google Firestore.
+> **Note:** Add a screenshot named `screenshot.png` to the repository for the preview image to display here.
 
-AI-Powered Moderation: Every message is analyzed by a fine-tuned BERT model to detect toxicity, with a warning flag (⚠️) applied to harmful content.
+---
 
-Responsive UI: A clean and modern user interface built with Tailwind CSS that works on all screen sizes.
+## ✨ Key Features  
 
-Dark & Light Themes: A theme switcher that saves user preference in their browser.
+- **💬 Real-Time P2P Chat** — Instant messaging powered by **Google Firestore**.  
+- **🤖 AI-Powered Moderation** — Each message is analyzed by a **fine-tuned BERT model** to detect toxicity, with ⚠️ warnings for harmful content.  
+- **📱 Responsive UI** — Clean, modern design with **Tailwind CSS** that works seamlessly on all devices.  
+- **🌓 Dark & Light Modes** — Theme switcher with saved preferences in the browser.  
+- **🔐 User Authentication** — Secure sign-up/login with **Firebase Auth**.  
+- **🗑️ Chat Management** — View all conversations and delete histories at any time.  
 
-User Authentication: Secure sign-up and login functionality handled by Firebase.
+---
 
-Chat Management: Users can view a list of all their conversations and delete chat histories.
+## 🛠 Tech Stack & Architecture  
 
-🛠️ Tech Stack & Architecture
-This project uses a modern, serverless architecture to ensure scalability and performance.
+**Frontend**  
+- HTML5  
+- Tailwind CSS  
+- Vanilla JavaScript (ES6 Modules)  
+- **Deployment:** Vercel  
 
-Frontend:
+**Backend (Serverless)**  
+- **Database & Auth:** Google Firestore  
+- **Real-Time Sync:** Firebase Realtime Updates  
 
-HTML5
+**AI Model & API**  
+- **Model:** Fine-tuned `bert-base-uncased` using **PyTorch** + Hugging Face Transformers  
+- **API Framework:** FastAPI  
+- **Deployment:** Hugging Face Spaces  
 
-Tailwind CSS
+---
 
-Vanilla JavaScript (ES6 Modules)
+## 📊 Model Performance  
 
-Deployment: Vercel
+| Metric                  | Score |
+|-------------------------|-------|
+| **Overall Accuracy**    | 93%   |
+| **Recall (Bullying)**   | 96%   |
+| **Precision (Bullying)**| 90%   |
 
-Backend (Serverless):
+**Dataset:** Balanced dataset of **115,000+ samples**.  
+**Training:** Optimized for real-time classification in chat environments.
 
-Database & Auth: Google Firestore for real-time data synchronization and user authentication.
+---
 
-AI Model & API:
+## ⚙️ Getting Started  
 
-Model: Fine-tuned bert-base-uncased model using PyTorch & Hugging Face Transformers.
+### **Prerequisites**
+- A modern web browser  
+- Firebase project with Authentication + Firestore enabled  
+- Deployed model API on Hugging Face Spaces  
 
-API Framework: FastAPI
+---
 
-Deployment: Hugging Face Spaces
+### **Local Setup**  
 
-📊 Model Performance
-The integrated BERT model was fine-tuned on a balanced dataset of over 115,000 samples and achieves excellent performance:
-
-Overall Accuracy: 93%
-
-Recall (for Bullying): 96%
-
-Precision (for Bullying): 90%
-
-⚙️ Getting Started
-To run this project locally, follow these steps:
-
-Prerequisites
-A modern web browser.
-
-A Firebase project with Authentication and Firestore enabled.
-
-A deployed model API on Hugging Face Spaces.
-
-Local Setup
-Clone the repository:
-
+1️⃣ **Clone the repository**  
+```bash
 git clone https://github.com/Dipanshu7777/safeguard-chat-app.git
 cd safeguard-chat-app
-
-Configure Firebase:
-
-Open the script.js file.
-
-Find the firebaseConfig object and replace the placeholder values with your own Firebase project's configuration keys.
-
-Configure the Model API:
-
-In script.js, find the API_URL constant.
-
-Replace the placeholder with the URL of your deployed Hugging Face Spaces API.
-
-Run the application:
-
-The easiest way to run the project locally and avoid CORS errors is to use a simple live server. If you have VS Code, the "Live Server" extension is a great option.
-
-📄 License
-This project is distributed under the MIT License. See LICENSE for more information.
