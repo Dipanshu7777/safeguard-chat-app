@@ -1,4 +1,6 @@
 # 🛡️ SafeGuard AI — Real-Time Moderated Chat
+![SafeGuard Chat Screenshot](Safegaurd.png)
+
 
 **SafeGuard AI** is a **full-stack, real-time, peer-to-peer chat application** with an **integrated AI moderator** that detects and flags toxic messages instantly.  
 Built from the ground up, this project demonstrates a **modern, serverless architecture** for creating **safer online communication tools**.
