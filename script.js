@@ -1,3 +1,4 @@
+You said:
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { 
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
@@ -153,12 +154,12 @@ function displayAllUsers(currentUserId) {
             const userElement = document.createElement('div');
             userElement.className = 'p-3 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700';
             const initials = userData.email.substring(0, 2).toUpperCase();
-            userElement.innerHTML = `
+            userElement.innerHTML = 
                 <div class="flex items-center min-w-0">
                     <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-bold text-gray-600 dark:text-gray-300 mr-3 flex-shrink-0">${initials}</div>
                     <p class="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">${userData.email}</p>
                 </div>
-                <button class="start-chat-btn bg-blue-500 text-white px-3 py-1 rounded-md text-xs font-semibold flex-shrink-0">Chat</button>`;
+                <button class="start-chat-btn bg-blue-500 text-white px-3 py-1 rounded-md text-xs font-semibold flex-shrink-0">Chat</button>;
             userElement.querySelector('.start-chat-btn').addEventListener('click', () => openChat(userData));
             usersListContainer.appendChild(userElement);
         }
@@ -190,7 +191,7 @@ function displayMyChats(chatRoomIds, currentUserId) {
             const chatElement = document.createElement('div');
             chatElement.className = 'p-3 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer';
             const initials = otherUser.email.substring(0, 2).toUpperCase();
-            chatElement.innerHTML = `
+            chatElement.innerHTML = 
                 <div class="flex items-center flex-grow min-w-0">
                     <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-bold text-gray-600 dark:text-gray-300 mr-3 flex-shrink-0">${initials}</div>
                     <p class="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">${otherUser.email}</p>
@@ -198,7 +199,7 @@ function displayMyChats(chatRoomIds, currentUserId) {
                 <button class="delete-chat-btn p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 ml-2 flex-shrink-0">
                     <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
-            `;
+            ;
             chatElement.addEventListener('click', (e) => { if (!e.target.closest('.delete-chat-btn')) openChat(otherUser); });
             chatElement.querySelector('.delete-chat-btn').addEventListener('click', (e) => { e.stopPropagation(); deleteChat(roomId); });
             chatsListContainer.appendChild(chatElement);
@@ -286,16 +287,16 @@ function createMessageElement(message, currentUserId) {
     const bubble = document.createElement('div');
     const isMyMessage = message.senderId === currentUserId;
 
-    wrapper.className = `flex items-start gap-3 message-fade-in ${isMyMessage ? 'justify-end' : 'justify-start'}`;
+    wrapper.className = flex items-start gap-3 message-fade-in ${isMyMessage ? 'justify-end' : 'justify-start'};
     
     const sender = allUsers[message.senderId];
     const initials = sender ? sender.email.substring(0, 2).toUpperCase() : '??';
-    const avatar = `<div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">${initials}</div>`;
+    const avatar = <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">${initials}</div>;
     
     const messageContent = document.createElement('div');
-    messageContent.className = `flex flex-col ${isMyMessage ? 'items-end' : 'items-start'}`;
+    messageContent.className = flex flex-col ${isMyMessage ? 'items-end' : 'items-start'};
 
-    bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl`;
+    bubble.className = max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl;
     bubble.appendChild(document.createTextNode(message.text));
     
     if (isMyMessage) {
@@ -313,7 +314,7 @@ function createMessageElement(message, currentUserId) {
     }
 
     const timestamp = document.createElement('div');
-    timestamp.className = `text-xs text-gray-400 mt-1`;
+    timestamp.className = text-xs text-gray-400 mt-1;
     if (message.createdAt) {
         timestamp.textContent = new Date(message.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     }
