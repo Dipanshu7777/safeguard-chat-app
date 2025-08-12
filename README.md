@@ -98,7 +98,7 @@ export default firebaseConfig;
 
 3️⃣ Install dependencies
 ```bash
-npm install
+npm install 
 ```
 
 4️⃣ Run the app locally
