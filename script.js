@@ -38,18 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const logoutButton = document.getElementById('logout-button');
-    const currentUserEmailDisplay = document.getElementById('current-user-email');
-    const currentUserAvatar = document.getElementById('current-user-avatar');
     const messageForm = document.getElementById('message-form');
-    const messagesContainer = document.getElementById('messages-container');
-    const chatPage = document.getElementById('chat-page');
-    const welcomeScreen = document.getElementById('welcome-screen');
-    const chatWithEmail = document.getElementById('chat-with-email');
-    const chatWithAvatar = document.getElementById('chat-with-avatar');
     const chatsTabButton = document.getElementById('chats-tab-button');
     const usersTabButton = document.getElementById('users-tab-button');
-    const chatsListContainer = document.getElementById('chats-list-container');
-    const usersListContainer = document.getElementById('users-list-container');
     const themeToggle = document.getElementById('theme-toggle');
     
     // --- Event Listeners ---
@@ -241,36 +232,20 @@ function openChat(otherUser) {
     listenForMessages(currentChatRoomId);
 }
 
-// CORRECTED FUNCTION
 async function handleSendMessage(e) {
     e.preventDefault();
     const messageInput = document.getElementById('message-input');
     const messageText = messageInput.value.trim();
     const currentUser = auth.currentUser;
     if (messageText && currentUser && currentChatRoomId) {
-        try {
-            // 1. Ensure the main chat room document exists.
-            const otherUserId = currentChatRoomId.replace(currentUser.uid, '').replace('_', '');
-            const chatRoomRef = doc(db, "chat_rooms", currentChatRoomId);
-            await setDoc(chatRoomRef, {
-                participants: [currentUser.uid, otherUserId],
-                lastUpdated: serverTimestamp()
-            }, { merge: true }); // Use merge to avoid overwriting if it exists
+        const messageData = {
+            text: messageText, senderId: currentUser.uid, createdAt: serverTimestamp(), isToxic: 'checking'
+        };
+        const messageRef = await addDoc(collection(db, "chat_rooms", currentChatRoomId, "messages"), messageData);
+        messageInput.value = '';
 
-            // 2. Add the message to the subcollection
-            const messageData = {
-                text: messageText, senderId: currentUser.uid, createdAt: serverTimestamp(), isToxic: 'checking'
-            };
-            const messageRef = await addDoc(collection(db, "chat_rooms", currentChatRoomId, "messages"), messageData);
-            messageInput.value = '';
-
-            // 3. Analyze and update the message in the background
-            const isToxic = await analyzeMessageToxicity(messageText);
-            await updateDoc(messageRef, { isToxic: isToxic });
-
-        } catch (error) { 
-            console.error("Error sending message: ", error); 
-        }
+        const isToxic = await analyzeMessageToxicity(messageText);
+        await updateDoc(messageRef, { isToxic: isToxic });
     }
 }
 
