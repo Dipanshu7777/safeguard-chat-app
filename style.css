@@ -1,79 +1,69 @@
-/* Light mode defaults */
-body {
-    font-family: Arial, sans-serif;
-    background-color: white;
-    color: black;
-    margin: 0;
-    padding: 0;
+body { 
+    font-family: 'Inter', sans-serif; 
 }
 
-.app-container {
-    width: 90%;
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 12px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, border 0.3s ease;
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
 }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-.chat-box {
-    height: 400px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 20px 0;
-    background-color: white;
+#messages-container::-webkit-scrollbar, 
+.sidebar-content::-webkit-scrollbar { 
+    width: 6px; 
 }
 
-.input-container {
-    display: flex;
-    gap: 10px;
+#messages-container::-webkit-scrollbar-track, 
+.sidebar-content::-webkit-scrollbar-track { 
+    background: transparent; 
 }
 
-input, button {
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
+#messages-container::-webkit-scrollbar-thumb, 
+.sidebar-content::-webkit-scrollbar-thumb { 
+    background: #d1d5db; 
+    border-radius: 3px; 
 }
 
-button {
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
+#messages-container::-webkit-scrollbar-thumb:hover, 
+.sidebar-content::-webkit-scrollbar-thumb:hover { 
+    background: #9ca3af; 
 }
 
-button:hover {
-    background-color: #0056b3;
+.tab-active { 
+    border-bottom-color: #3b82f6; 
+    color: #3b82f6; 
 }
 
-/* Dark mode */
-body.dark-mode {
-    background-color: black;
-    color: white;
+.dark .tab-active { 
+    border-bottom-color: #60a5fa; 
+    color: #60a5fa; 
 }
 
-body.dark-mode .app-container {
-    background-color: #1e1e1e;
-    border: 2px solid #444; /* Clear separation in dark mode */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-body.dark-mode .chat-box {
-    background-color: #2a2a2a;
-    border-color: #555;
+.message-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
 }
 
-body.dark-mode button {
-    background-color: #4a90e2;
+.dot {
+    transition: transform 0.3s ease-in-out;
 }
 
-body.dark-mode button:hover {
-    background-color: #357abd;
+#theme-toggle:checked + div {
+    background-color: #4f46e5;
+}
+
+#theme-toggle:checked + div .dot {
+    transform: translateX(16px);
 }
