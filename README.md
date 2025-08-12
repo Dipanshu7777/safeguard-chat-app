@@ -1,10 +1,8 @@
 # 🛡️ SafeGuard AI — Real-Time Moderated Chat
 ![SafeGuard Chat Screenshot](Safegaurd.png)
 
-
-**SafeGuard AI** is a **full-stack, real-time, peer-to-peer chat application** with an **integrated AI moderator** that detects and flags toxic messages instantly.  
-Built from the ground up, this project demonstrates a **modern, serverless architecture** for creating **safer online communication tools**.
-
+**SafeGuard AI** is a **full-stack, real-time, peer-to-peer chat application** with an **integrated AI moderator** powered by a **fine-tuned BERT model** to detect and flag toxic or bullying messages instantly.  
+It demonstrates a **modern, serverless architecture** combining **Firebase** for real-time messaging and **Hugging Face Spaces** for AI inference.  
 If you find this project useful or interesting, please consider giving it a ⭐ **star**!
 
 ---
@@ -41,6 +39,8 @@ If you find this project useful or interesting, please consider giving it a ⭐ 
 - **Model:** Fine-tuned `bert-base-uncased` using **PyTorch** + Hugging Face Transformers  
 - **API Framework:** FastAPI  
 - **Deployment:** Hugging Face Spaces  
+- **Model Repo:** [bullying-detector](https://github.com/Dipanshu7777/bullying-detector)  
+- **Live API:** [SafeGuard API](https://huggingface.co/spaces/dez2work9876/safeguard-api)  
 
 ---
 
@@ -53,7 +53,7 @@ If you find this project useful or interesting, please consider giving it a ⭐ 
 | **Precision (Bullying)**| 90%   |
 
 **Dataset:** Balanced dataset of **115,000+ samples**.  
-**Training:** Optimized for real-time classification in chat environments.
+**Training:** Optimized for real-time classification in chat environments.  
 
 ---
 
@@ -72,3 +72,73 @@ If you find this project useful or interesting, please consider giving it a ⭐ 
 ```bash
 git clone https://github.com/Dipanshu7777/safeguard-chat-app.git
 cd safeguard-chat-app
+``` 
+
+2️⃣ Configure Firebase
+
+Go to Firebase Console
+Create a new project
+Enable Authentication (Email/Google)
+Enable Cloud Firestore
+Get your Firebase config and add it to config.js:
+
+// config.js
+```bash
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+export default firebaseConfig;
+
+3️⃣ Install dependencies
+```bash
+npm install
+```
+
+4️⃣ Run the app locally
+
+```bash
+npm start
+```
+## 🌐 Deployment
+
+### Frontend
+Deploy to **Vercel**:  
+1. Connect your GitHub repository  
+2. Configure Firebase environment variables  
+3. Deploy 🎉  
+
+### Model API
+Already deployed on **Hugging Face Spaces**.  
+If redeploying, push updates to your `bullying-detector` repo and redeploy the space.
+
+---
+
+## 🔒 Security Notes
+- **Do not** expose any private Hugging Face API tokens in client-side code.  
+- Always call private spaces through a **secure backend proxy**.  
+- Implement **rate-limiting** and **validation** on your proxy endpoints.
+
+---
+
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome!  
+Feel free to **fork the repo** and submit a **pull request**.
+
+---
+
+## 📜 License
+This project is licensed under the **MIT License**.
+
+---
+
+## ⭐ Support
+If you found this project useful or inspiring, please give it a **star** on GitHub!
+
+
