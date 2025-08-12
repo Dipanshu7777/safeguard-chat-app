@@ -31,58 +31,63 @@ let unsubscribeMessages = null;
 let allUsers = {};
 
 // --- Main execution block that waits for the DOM ---
-// Wait for the initial HTML document to be completely loaded and parsed
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- THEME TOGGLE LOGIC ---
-
+    // --- DOM Elements ---
+    const authPage = document.getElementById('auth-page');
+    const mainApp = document.getElementById('main-app');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const logoutButton = document.getElementById('logout-button');
+    const messageForm = document.getElementById('message-form');
+    const chatsTabButton = document.getElementById('chats-tab-button');
+    const usersTabButton = document.getElementById('users-tab-button');
     const themeToggle = document.getElementById('theme-toggle');
-    const htmlElement = document.documentElement; // This is the <html> tag
-
-    /**
-     * Applies the given theme by adding or removing the 'dark' class
-     * from the <html> element and updating the toggle's state.
-     * @param {string} theme - The theme to apply, either 'light' or 'dark'.
-     */
-    const applyTheme = (theme) => {
-        if (theme === 'dark') {
-            htmlElement.classList.add('dark');
-            if (themeToggle) {
-                themeToggle.checked = true;
-            }
-        } else {
-            htmlElement.classList.remove('dark');
-            if (themeToggle) {
-                themeToggle.checked = false;
-            }
-        }
-    };
-
-    // MODIFIED LINE: Set 'dark' as the default theme.
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-
-    // Apply the determined theme as soon as the page loads
-    applyTheme(savedTheme);
-
-    // Add the event listener only if the toggle element was found
-    if (themeToggle) {
-        themeToggle.addEventListener('change', () => {
-            // Determine the new theme based on whether the checkbox is checked
-            const newTheme = themeToggle.checked ? 'dark' : 'light';
-            
-            // Apply the new theme
-            applyTheme(newTheme);
-            
-            // Save the user's preference to localStorage for future visits
-            localStorage.setItem('theme', newTheme);
-        });
+    
+    // --- Event Listeners ---
+    signupForm.addEventListener('submit', handleSignup);
+    loginForm.addEventListener('submit', handleLogin);
+    logoutButton.addEventListener('click', () => signOut(auth));
+    messageForm.addEventListener('submit', handleSendMessage);
+    chatsTabButton.addEventListener('click', () => switchTab('chats'));
+    usersTabButton.addEventListener('click', () => switchTab('users'));
+    if(themeToggle) {
+        themeToggle.addEventListener('change', handleThemeToggle);
     }
 
-    // --- YOUR OTHER JAVASCRIPT LOGIC GOES HERE ---
-    // You can add your code for login, signup, chat, etc., inside this
-    // DOMContentLoaded listener to ensure all HTML elements are ready.
+    // --- Theme Management ---
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            if (themeToggle) themeToggle.checked = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+            if (themeToggle) themeToggle.checked = false;
+        }
+    }
 
+    function handleThemeToggle() {
+        const newTheme = themeToggle.checked ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    }
+    
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    // --- Core Application Logic ---
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            authPage.style.display = 'none';
+            mainApp.style.display = 'flex';
+            updateUserInfo(user);
+            fetchAllUsersAndChats(user.uid);
+        } else {
+            authPage.style.display = 'flex';
+            mainApp.style.display = 'none';
+        }
+    });
 });
+
 // --- Function Definitions ---
 async function handleSignup(e) {
     e.preventDefault();
@@ -326,4 +331,3 @@ function createMessageElement(message, currentUserId) {
     
     return wrapper;
 }
-
