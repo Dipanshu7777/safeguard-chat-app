@@ -91,6 +91,7 @@ const db = getFirestore(app);
 let currentChatRoomId = null;
 let unsubscribeMessages = null;
 let allUsers = {};
+let isSending = false; // 🔒 Lock to prevent multiple sends
 
 // --- DOM ELEMENTS ---
 const authPage = document.getElementById('auth-page');
@@ -131,10 +132,8 @@ function applyTheme(theme, toggleElement) {
     }
 }
 
-// Set initial theme on page load
 const savedTheme = localStorage.getItem("theme") || 'dark';
 applyTheme(savedTheme, null);
-
 
 // --- AUTHENTICATION ---
 onAuthStateChanged(auth, user => {
@@ -323,25 +322,32 @@ function openChat(otherUser) {
     listenForMessages(currentChatRoomId);
 }
 
+// ✅ FIX 1: Prevent Multiple Message Sends
 async function handleSendMessage(e) {
     e.preventDefault();
+    
+    if (isSending) return; // 🚫 Block if already sending
+    isSending = true;      // 🔒 Lock
+
     const messageInput = document.getElementById('message-input');
     const messageText = messageInput.value.trim();
     const currentUser = auth.currentUser;
+
     if (messageText && currentUser && currentChatRoomId) {
         messageInput.value = ''; 
+        
         const messageData = {
             text: messageText,
             senderId: currentUser.uid,
             createdAt: serverTimestamp(),
             isToxic: 'checking',
-            isEncrypted: false // <-- Set default state
+            isEncrypted: false 
         };
+
         try {
             const messageRef = await addDoc(collection(db, "chat_rooms", currentChatRoomId, "messages"), messageData);
-            const isToxic = await analyzeMessageToxicity(messageText);
             
-            // 🔐 Encrypt AFTER AI
+            const isToxic = await analyzeMessageToxicity(messageText);
             const encrypted = await encryptText(messageText);
 
             await updateDoc(messageRef, {
@@ -355,6 +361,8 @@ async function handleSendMessage(e) {
             messageInput.value = messageText; 
         }
     }
+    
+    isSending = false; // 🔓 Release lock
 }
 
 async function analyzeMessageToxicity(text) {
@@ -398,7 +406,6 @@ function listenForMessages(chatRoomId) {
 
 function createMessageElement(message, currentUserId) {
     const wrapper = document.createElement('div');
-    const bubble = document.createElement('div');
     const isMyMessage = message.senderId === currentUserId;
 
     wrapper.className = `flex items-start gap-3 message-fade-in ${isMyMessage ? 'justify-end' : 'justify-start'}`;
@@ -410,22 +417,26 @@ function createMessageElement(message, currentUserId) {
     const messageContent = document.createElement('div');
     messageContent.className = `flex flex-col ${isMyMessage ? 'items-end' : 'items-start'}`;
 
-    bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl flex items-center`;
+    const bubble = document.createElement('div');
+    // ✅ Use gap-2 to ensure text and icons don't overlap
+    bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl flex items-center gap-2`; 
     
-    // 💡 THE FIX: Wrap text in a dedicated span to prevent overwrite
+    // ✅ FIX 2: Stabilize UI Rendering with dedicated text span
     const textSpan = document.createElement('span');
-    textSpan.textContent = message.text;
-    bubble.appendChild(textSpan);
-
-    // Decrypt and update ONLY the span, leaving the rest of the bubble untouched
-    (async () => {
-        if (message.isEncrypted && message.iv) {
-            const decrypted = await decryptText(message.text, message.iv);
+    textSpan.className = 'break-words min-w-0'; // Ensure long words wrap
+    
+    if (message.isEncrypted && message.iv) {
+        textSpan.textContent = "Decrypting..."; // Shows while decrypting, prevents base64 flash
+        decryptText(message.text, message.iv).then(decrypted => {
             textSpan.textContent = decrypted;
-        } else {
-            textSpan.textContent = message.text;
-        }
-    })();
+        }).catch(() => {
+            textSpan.textContent = "🔒 Decryption failed";
+        });
+    } else {
+        textSpan.textContent = message.text;
+    }
+    
+    bubble.appendChild(textSpan);
 
     if (isMyMessage) {
         bubble.classList.add('bg-blue-600', 'text-white', 'rounded-br-none');
@@ -433,13 +444,21 @@ function createMessageElement(message, currentUserId) {
         bubble.classList.add('bg-slate-200', 'text-slate-800', 'dark:bg-gray-700', 'dark:text-gray-200', 'rounded-bl-none');
     }
 
+    // ✅ FIX 3: Append icons AFTER text setup
     if (message.isToxic === true) {
         bubble.classList.add('border-2', 'border-red-500');
         const warningIcon = document.createElement('span');
-        warningIcon.className = 'text-red-500 ml-2 flex-shrink-0';
+        warningIcon.className = 'text-red-500 flex-shrink-0'; // flex-shrink-0 prevents it from squishing
         warningIcon.innerHTML = '⚠️';
         warningIcon.title = "This message was flagged as potentially harmful.";
-        bubble.appendChild(warningIcon); // Will no longer be overwritten!
+        bubble.appendChild(warningIcon);
+    } else if (message.isToxic === 'checking') {
+        // Little UX boost: show a timer icon while AI runs
+        const checkingIcon = document.createElement('span');
+        checkingIcon.className = 'text-slate-400 text-xs flex-shrink-0';
+        checkingIcon.innerHTML = '⏳';
+        checkingIcon.title = "Analyzing message...";
+        bubble.appendChild(checkingIcon);
     }
 
     const timestamp = document.createElement('div');
