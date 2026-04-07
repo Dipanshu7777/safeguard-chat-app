@@ -5,7 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { 
     getFirestore, doc, setDoc, collection, getDocs, query,
-    addDoc, serverTimestamp, onSnapshot, orderBy, deleteDoc, writeBatch, getDoc, updateDoc
+    addDoc, serverTimestamp, onSnapshot, orderBy, deleteDoc, writeBatch, updateDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- CONFIGURATION ---
@@ -122,11 +122,10 @@ usersTabButton.addEventListener('click', () => switchTab('users'));
 // --- THEME LOGIC ---
 function applyTheme(theme, toggleElement) {
     const html = document.documentElement;
-    // If the theme is LIGHT, we REMOVE the dark class and CHECK the toggle.
     if (theme === 'light') {
         html.classList.remove('dark');
         if (toggleElement) toggleElement.checked = true;
-    } else { // Otherwise, the theme is DARK, so we ADD the dark class and UNCHECK the toggle.
+    } else { 
         html.classList.add('dark');
         if (toggleElement) toggleElement.checked = false;
     }
@@ -146,9 +145,7 @@ onAuthStateChanged(auth, user => {
         fetchAllUsersAndChats(user.uid);
 
         const themeToggle = document.getElementById('theme-toggle');
-        // Sync toggle with current theme
         applyTheme(localStorage.getItem("theme") || 'dark', themeToggle);
-        // Add listener for theme changes
         themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'light' : 'dark';
             localStorage.setItem('theme', newTheme);
@@ -158,7 +155,6 @@ onAuthStateChanged(auth, user => {
     } else {
         authPage.style.display = 'flex';
         mainApp.style.display = 'none';
-        // Cleanup when logged out
         if (unsubscribeMessages) unsubscribeMessages();
         currentChatRoomId = null;
     }
@@ -333,12 +329,13 @@ async function handleSendMessage(e) {
     const messageText = messageInput.value.trim();
     const currentUser = auth.currentUser;
     if (messageText && currentUser && currentChatRoomId) {
-        messageInput.value = ''; // Clear input immediately for better UX
+        messageInput.value = ''; 
         const messageData = {
             text: messageText,
             senderId: currentUser.uid,
             createdAt: serverTimestamp(),
-            isToxic: 'checking'
+            isToxic: 'checking',
+            isEncrypted: false // <-- Set default state
         };
         try {
             const messageRef = await addDoc(collection(db, "chat_rooms", currentChatRoomId, "messages"), messageData);
@@ -355,7 +352,6 @@ async function handleSendMessage(e) {
             });
         } catch (error) {
             console.error("Error sending message:", error);
-            // Optionally, add the message back to the input to allow user to retry
             messageInput.value = messageText; 
         }
     }
@@ -376,7 +372,7 @@ async function analyzeMessageToxicity(text) {
         return result.label === 'Bullying';
     } catch (error) {
         console.error("Error analyzing toxicity:", error);
-        return false; // Default to not toxic if API fails
+        return false; 
     }
 }
 
@@ -414,14 +410,20 @@ function createMessageElement(message, currentUserId) {
     const messageContent = document.createElement('div');
     messageContent.className = `flex flex-col ${isMyMessage ? 'items-end' : 'items-start'}`;
 
-    bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl`;
+    bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl flex items-center`;
     
+    // 💡 THE FIX: Wrap text in a dedicated span to prevent overwrite
+    const textSpan = document.createElement('span');
+    textSpan.textContent = message.text;
+    bubble.appendChild(textSpan);
+
+    // Decrypt and update ONLY the span, leaving the rest of the bubble untouched
     (async () => {
         if (message.isEncrypted && message.iv) {
             const decrypted = await decryptText(message.text, message.iv);
-            bubble.textContent = decrypted;
+            textSpan.textContent = decrypted;
         } else {
-            bubble.textContent = message.text;
+            textSpan.textContent = message.text;
         }
     })();
 
@@ -434,10 +436,10 @@ function createMessageElement(message, currentUserId) {
     if (message.isToxic === true) {
         bubble.classList.add('border-2', 'border-red-500');
         const warningIcon = document.createElement('span');
-        warningIcon.className = 'text-red-500 ml-2';
+        warningIcon.className = 'text-red-500 ml-2 flex-shrink-0';
         warningIcon.innerHTML = '⚠️';
         warningIcon.title = "This message was flagged as potentially harmful.";
-        bubble.appendChild(warningIcon);
+        bubble.appendChild(warningIcon); // Will no longer be overwritten!
     }
 
     const timestamp = document.createElement('div');
@@ -445,7 +447,7 @@ function createMessageElement(message, currentUserId) {
     if (message.createdAt && message.createdAt.seconds) {
         timestamp.textContent = new Date(message.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } else {
-        timestamp.textContent = "sending..."; // Placeholder for pending messages
+        timestamp.textContent = "sending..."; 
     }
 
     messageContent.appendChild(bubble);
