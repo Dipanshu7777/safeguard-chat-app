@@ -20,6 +20,68 @@ const firebaseConfig = {
 };
 const API_URL = "https://dez2work9876-safeguard-api.hf.space/predict";
 
+// --- ENCRYPTION SETUP ---
+const ENCRYPTION_SECRET = "safeguard-secret-key";
+
+async function getKey() {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        enc.encode(ENCRYPTION_SECRET),
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"]
+    );
+
+    return crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: enc.encode("salt"),
+            iterations: 100000,
+            hash: "SHA-256"
+        },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+    );
+}
+
+async function encryptText(text) {
+    const key = await getKey();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(text);
+
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        key,
+        encoded
+    );
+
+    return {
+        data: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
+        iv: btoa(String.fromCharCode(...iv))
+    };
+}
+
+async function decryptText(data, iv) {
+    try {
+        const key = await getKey();
+        const ciphertext = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+        const ivArray = Uint8Array.from(atob(iv), c => c.charCodeAt(0));
+
+        const decrypted = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: ivArray },
+            key,
+            ciphertext
+        );
+
+        return new TextDecoder().decode(decrypted);
+    } catch {
+        return "🔒 Encrypted message";
+    }
+}
+
 // --- INITIALIZATION ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -281,8 +343,15 @@ async function handleSendMessage(e) {
         try {
             const messageRef = await addDoc(collection(db, "chat_rooms", currentChatRoomId, "messages"), messageData);
             const isToxic = await analyzeMessageToxicity(messageText);
+            
+            // 🔐 Encrypt AFTER AI
+            const encrypted = await encryptText(messageText);
+
             await updateDoc(messageRef, {
-                isToxic: isToxic
+                isToxic: isToxic,
+                text: encrypted.data,
+                iv: encrypted.iv,
+                isEncrypted: true
             });
         } catch (error) {
             console.error("Error sending message:", error);
@@ -346,7 +415,15 @@ function createMessageElement(message, currentUserId) {
     messageContent.className = `flex flex-col ${isMyMessage ? 'items-end' : 'items-start'}`;
 
     bubble.className = `max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl`;
-    bubble.textContent = message.text;
+    
+    (async () => {
+        if (message.isEncrypted && message.iv) {
+            const decrypted = await decryptText(message.text, message.iv);
+            bubble.textContent = decrypted;
+        } else {
+            bubble.textContent = message.text;
+        }
+    })();
 
     if (isMyMessage) {
         bubble.classList.add('bg-blue-600', 'text-white', 'rounded-br-none');
